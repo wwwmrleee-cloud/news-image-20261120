@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-"""news-image-20261120: draw one 1024x1024 PNG summing up the world news of
-Friday 20 November 2026. Pure Python standard library only (math, os,
-struct, zlib): no fonts, no images, no network, no time, no randomness, so
-two runs write byte-identical files. Run: python3 main.py (writes
+"""news-image-20261120: draw one 1024x1024 PNG that sums up the world news
+of Friday 20 November 2026. Pure Python standard library only (math, os,
+struct, zlib): a hand-typed 5x7 pixel font, its own PNG encoder, no fonts,
+no images, no network, no clock, no chance, so two runs write
+byte-identical files. Run: python3 main.py (writes
 $MAKEFUN_OUTPUT_DIR/entry.png, default /output/entry.png).
 
-The day, as reported on 20 November 2026: Trump pushes the Iran war
-decision to 2027, saying he will see what happens after Jan 1; Trump, Xi
-and Putin issue a four-point statement after their Shenzhen summit;
-Anthropic debuts on Nasdaq, priced $83, soaring to $111.50; Bitcoin nears
-$60,000 as ETF outflows pass $2.5bn in 2026; Cyclone Akvan nears landfall
-in India with 80,000 evacuated; Voyager 1 nears one light-day out.
+The day, as reported on 20 November 2026: Trump puts the Iran decision
+off to 2027, saying he will see what happens after Jan 1; Trump, Xi and
+Putin issue a four-point joint statement in Shenzhen; Anthropic shares
+soar from $83 to $111.50 on debut, worth about $1.5tn; Bitcoin nears
+$60,000 at $61,635 with the fear index at 10; Cyclone Akvan forces
+80,000 to evacuate ahead of a midday landfall; Voyager 1 nears one
+light-day from Earth; the ICJ rules on Myanmar and the Rohingya.
 """
 import math
 import os
@@ -23,14 +25,15 @@ W, H = 1024, 1024
 FONT = {
     " ": ("00000", "00000", "00000", "00000", "00000", "00000", "00000"),
     "!": ("00100", "00100", "00100", "00100", "00100", "00000", "00100"),
-    '"': ("01010", "01010", "00000", "00000", "00000", "00000", "00000"),
+    '"': ("01010", "01010", "01010", "00000", "00000", "00000", "00000"),
+    "#": ("01010", "01010", "11111", "01010", "11111", "01010", "01010"),
     "$": ("00100", "01111", "10100", "01110", "00101", "11110", "00100"),
     "%": ("11001", "11010", "00010", "00100", "01000", "01011", "10011"),
     "&": ("01100", "10010", "10100", "01000", "10101", "10010", "01101"),
     "'": ("00100", "00100", "01000", "00000", "00000", "00000", "00000"),
     "(": ("00010", "00100", "01000", "01000", "01000", "00100", "00010"),
-    ")": ("01000", "00100", "00010", "00010", "00010", "00100", "00010"),
-    "*": ("00000", "10101", "01110", "10101", "00000", "00000", "00000"),
+    ")": ("01000", "00100", "00010", "00010", "00010", "00100", "01000"),
+    "*": ("00000", "00100", "10101", "01110", "10101", "00100", "00000"),
     "+": ("00000", "00100", "00100", "11111", "00100", "00100", "00000"),
     ",": ("00000", "00000", "00000", "00000", "01100", "00100", "01000"),
     "-": ("00000", "00000", "00000", "01110", "00000", "00000", "00000"),
@@ -47,12 +50,12 @@ FONT = {
     "8": ("01110", "10001", "10001", "01110", "10001", "10001", "01110"),
     "9": ("01110", "10001", "10001", "01111", "00001", "00010", "01100"),
     ":": ("00000", "01100", "01100", "00000", "01100", "01100", "00000"),
-    ";": ("00000", "01100", "00000", "01100", "01100", "00100", "01000"),
+    ";": ("00000", "01100", "01100", "00000", "01100", "00100", "01000"),
     "<": ("00010", "00100", "01000", "10000", "01000", "00100", "00010"),
     "=": ("00000", "00000", "11111", "00000", "11111", "00000", "00000"),
     ">": ("01000", "00100", "00010", "00001", "00010", "00100", "01000"),
     "?": ("01110", "10001", "00001", "00110", "00100", "00000", "00100"),
-    "|": ("00100", "00100", "00100", "00100", "00100", "00100", "00100"),
+    "@": ("01110", "10001", "10111", "10101", "10110", "10000", "01110"),
     "A": ("01110", "10001", "10001", "11111", "10001", "10001", "10001"),
     "B": ("11110", "10001", "10001", "11110", "10001", "10001", "11110"),
     "C": ("01110", "10001", "10000", "10000", "10000", "10001", "01110"),
@@ -79,6 +82,12 @@ FONT = {
     "X": ("10001", "10001", "01010", "00100", "01010", "10001", "10001"),
     "Y": ("10001", "10001", "01010", "00100", "00100", "00100", "00100"),
     "Z": ("11111", "00001", "00010", "00100", "01000", "10000", "11111"),
+    "[": ("01110", "01000", "01000", "01000", "01000", "01000", "01110"),
+    "\\": ("10000", "01000", "01000", "00100", "00010", "00010", "00001"),
+    "]": ("01110", "00010", "00010", "00010", "00010", "00010", "01110"),
+    "^": ("00100", "01010", "10001", "00000", "00000", "00000", "00000"),
+    "_": ("00000", "00000", "00000", "00000", "00000", "00000", "11111"),
+    "`": ("00100", "00100", "00010", "00000", "00000", "00000", "00000"),
     "a": ("00000", "00000", "01110", "00001", "01111", "10001", "01111"),
     "b": ("10000", "10000", "11110", "10001", "10001", "10001", "11110"),
     "c": ("00000", "00000", "01110", "10000", "10000", "10001", "01110"),
@@ -105,6 +114,10 @@ FONT = {
     "x": ("00000", "00000", "10001", "01010", "00100", "01010", "10001"),
     "y": ("00000", "00000", "10001", "10001", "01111", "00001", "01110"),
     "z": ("00000", "00000", "11111", "00010", "00100", "01000", "11111"),
+    "{": ("00110", "01000", "01000", "11100", "01000", "01000", "00110"),
+    "|": ("00100", "00100", "00100", "00100", "00100", "00100", "00100"),
+    "}": ("01100", "00010", "00010", "00111", "00010", "00010", "01100"),
+    "~": ("00000", "00000", "01001", "10110", "00000", "00000", "00000"),
 }
 
 PAPER = (247, 243, 232)
@@ -113,289 +126,275 @@ NAVY = (18, 38, 66)
 RED = (179, 38, 30)
 BLUE = (29, 78, 137)
 TEAL = (15, 118, 110)
-GOLD = (176, 124, 22)
+ORANGE = (196, 96, 16)
+GOLD = (212, 164, 44)
 GREY = (90, 90, 86)
 LIGHT = (255, 255, 255)
 SKY = (178, 214, 235)
-SEA = (28, 68, 110)
+CREAM = (232, 222, 190)
 GREEN = (34, 120, 60)
-AMBER = (200, 110, 20)
+
+STORIES = [
+    {"kicker": "SHENZHEN", "band": NAVY,
+     "headline": "SUMMIT ISSUES JOINT STATEMENT",
+     "deck": "Four-point pact on nuclear arms, energy."},
+    {"kicker": "MARKETS", "band": TEAL,
+     "headline": "ANTHROPIC SHARES SOAR ON DEBUT",
+     "deck": "$83 to $111.50. Worth $1.5tn."},
+    {"kicker": "CRYPTO", "band": ORANGE,
+     "headline": "BITCOIN NEARS $60,000",
+     "deck": "BTC $61,635. Fear index 10."},
+    {"kicker": "WEATHER", "band": BLUE,
+     "headline": "CYCLONE AKVAN NEARS INDIA",
+     "deck": "80,000 evacuated. Noon landfall."},
+    {"kicker": "SPACE", "band": NAVY,
+     "headline": "VOYAGER 1 NEARS ONE LIGHT-DAY",
+     "deck": "Farthest human object ever."},
+    {"kicker": "JUSTICE", "band": RED,
+     "headline": "MYANMAR GENOCIDE RULING",
+     "deck": "Court finds likely intent to destroy."},
+]
+
+LEAD_KICKER = "IRAN DECISION - LEAD STORY"
+LEAD_HEAD = ["TRUMP PUTS IRAN", "DECISION OFF", "TO 2027"]
+LEAD_TEXT = ("Trump says there is no rush: he will see what happens "
+             "after Jan 1. The decision moves to 2027.")
+SUBLINE = ("Trump delays Iran to 2027, a record AI debut, a cyclone, "
+           "Bitcoin near $60,000.")
+FOOTER = ("Fed signals more rate hikes | Seoul court clears ex-PM Han | "
+          "Fiji declares drought disaster | Nicholls 113* as NZ hit 243/5")
 
 
 class Canvas:
-    def __init__(self):
-        self.pix = bytearray(PAPER * W * H)
+    """An RGB pixel buffer with tiny drawing helpers."""
 
-    def px(self, x, y, c):
+    def __init__(self):
+        self.pix = bytearray(PAPER * (W * H))
+
+    def px(self, x, y, colour):
         if 0 <= x < W and 0 <= y < H:
             i = (y * W + x) * 3
-            self.pix[i], self.pix[i + 1], self.pix[i + 2] = c
+            self.pix[i:i + 3] = bytes(colour)
 
-    def rect(self, x, y, w, h, c):
-        x0, y0 = max(0, x), max(0, y)
-        x1, y1 = min(W, x + w), min(H, y + h)
-        for yy in range(y0, y1):
-            i = (yy * W + x0) * 3
-            for xx in range(x0, x1):
-                self.pix[i], self.pix[i + 1], self.pix[i + 2] = c
-                i += 3
+    def fill_rect(self, x, y, w, h, colour):
+        for yy in range(y, y + h):
+            for xx in range(x, x + w):
+                self.px(xx, yy, colour)
 
-    def disc(self, cx, cy, r, c):
+    def hline(self, x, y, w, colour):
+        self.fill_rect(x, y, w, 1, colour)
+
+    def vline(self, x, y, h, colour):
+        self.fill_rect(x, y, 1, h, colour)
+
+    def line(self, x0, y0, x1, y1, colour):
+        dx = abs(x1 - x0)
+        dy = -abs(y1 - y0)
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+        err = dx + dy
+        while True:
+            self.px(x0, y0, colour)
+            if x0 == x1 and y0 == y1:
+                return
+            e2 = 2 * err
+            if e2 >= dy:
+                err += dy
+                x0 += sx
+            if e2 <= dx:
+                err += dx
+                y0 += sy
+
+    def disc(self, cx, cy, r, colour):
         for yy in range(cy - r, cy + r + 1):
-            dx = int(math.sqrt(max(0, r * r - (yy - cy) ** 2)))
-            for xx in range(cx - dx, cx + dx + 1):
-                self.px(xx, yy, c)
+            for xx in range(cx - r, cx + r + 1):
+                if (xx - cx) * (xx - cx) + (yy - cy) * (yy - cy) <= r * r:
+                    self.px(xx, yy, colour)
 
-    def line(self, x0, y0, x1, y1, c, w=1):
-        dx, dy = x1 - x0, y1 - y0
-        steps = max(abs(dx), abs(dy), 1)
-        r = w // 2
-        for s in range(steps + 1):
-            x = x0 + dx * s // steps
-            y = y0 + dy * s // steps
-            if w <= 1:
-                self.px(x, y, c)
-            else:
-                self.disc(x, y, r, c)
+    def ring(self, cx, cy, r, colour):
+        for a in range(360):
+            t = math.radians(a)
+            self.px(cx + int(r * math.cos(t)), cy + int(r * math.sin(t)),
+                   colour)
 
-    def poly(self, pts, c):
-        ys = [p[1] for p in pts]
-        for y in range(max(0, min(ys)), min(H, max(ys) + 1)):
-            xs = []
-            n = len(pts)
-            for i in range(n):
-                x0, y0 = pts[i]
-                x1, y1 = pts[(i + 1) % n]
-                if (y0 <= y < y1) or (y1 <= y < y0):
-                    xs.append(x0 + (y - y0) * (x1 - x0) / (y1 - y0))
-            xs.sort()
-            for k in range(0, len(xs) - 1, 2):
-                for x in range(int(math.ceil(xs[k])), int(xs[k + 1]) + 1):
-                    self.px(x, y, c)
+    def glyph(self, x, y, ch, scale, colour):
+        rows = FONT.get(ch)
+        if rows is None:
+            return
+        for ry, row in enumerate(rows):
+            for rx, bit in enumerate(row):
+                if bit == "1":
+                    self.fill_rect(x + rx * scale, y + ry * scale,
+                                   scale, scale, colour)
 
-    def text_width(self, s, scale):
+    def text(self, x, y, s, scale, colour):
+        for i, ch in enumerate(s):
+            self.glyph(x + i * 6 * scale, y, ch, scale, colour)
+
+    def text_w(self, s, scale):
         return len(s) * 6 * scale - scale if s else 0
 
-    def text(self, x, y, s, scale, c):
-        for ch in s:
-            g = FONT.get(ch, FONT["?"])
-            for row in range(7):
-                bits = g[row]
-                for col in range(5):
-                    if bits[col] == "1":
-                        self.rect(x + col * scale, y + row * scale,
-                                  scale, scale, c)
-            x += 6 * scale
-        return x
+    def centre(self, cx, y, s, scale, colour):
+        self.text(cx - self.text_w(s, scale) // 2, y, s, scale, colour)
 
-    def wrap(self, s, scale, maxw):
-        words = s.split(" ")
-        lines, cur = [], ""
-        for wd in words:
-            trial = wd if not cur else cur + " " + wd
-            if self.text_width(trial, scale) <= maxw or not cur:
-                cur = trial
-            else:
+    def wrap(self, text, scale, width):
+        """Greedy word wrap; returns a list of lines fitting width."""
+        per = max(1, width // (6 * scale))
+        lines = []
+        for raw in text.split("\n"):
+            words = raw.split(" ")
+            cur = ""
+            for wd in words:
+                while len(wd) > per:
+                    if cur:
+                        lines.append(cur)
+                        cur = ""
+                    lines.append(wd[:per])
+                    wd = wd[per:]
+                trial = wd if not cur else cur + " " + wd
+                if len(trial) <= per:
+                    cur = trial
+                else:
+                    lines.append(cur)
+                    cur = wd
+            if cur or not lines:
                 lines.append(cur)
-                cur = wd
-        if cur:
-            lines.append(cur)
         return lines
 
-    def para(self, x, y, s, scale, maxw, c, leading=None):
-        lh = leading if leading is not None else 9 * scale
-        for ln in self.wrap(s, scale, maxw):
-            self.text(x, y, ln, scale, c)
-            y += lh
-        return y
+    def para(self, x, y, text, scale, width, colour):
+        """Draw wrapped text; returns the y just below the last line."""
+        lines = self.wrap(text, scale, width)
+        for i, ln in enumerate(lines):
+            self.text(x, y + i * 9 * scale, ln, scale, colour)
+        return y + len(lines) * 9 * scale
+
+    def png_bytes(self):
+        raw = bytearray()
+        for yy in range(H):
+            raw.append(0)
+            raw += self.pix[yy * W * 3:(yy + 1) * W * 3]
+
+        def chunk(tag, data):
+            return (struct.pack(">I", len(data)) + tag + data +
+                    struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF))
+
+        ihdr = struct.pack(">IIBBBBB", W, H, 8, 2, 0, 0, 0)
+        return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr) +
+                chunk(b"IDAT", zlib.compress(bytes(raw), 9)) +
+                chunk(b"IEND", b""))
 
 
-def png_bytes(cv):
-    raw = bytearray()
-    for y in range(H):
-        raw.append(0)
-        raw.extend(cv.pix[y * W * 3:(y + 1) * W * 3])
-    comp = zlib.compress(bytes(raw), 9)
-
-    def chunk(tag, data):
-        out = struct.pack(">I", len(data)) + tag + data
-        return out + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
-
-    ihdr = struct.pack(">IIBBBBB", W, H, 8, 2, 0, 0, 0)
-    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr) + chunk(b"IDAT", comp) + chunk(b"IEND", b"")
-
-
-# --- small flat icons, drawn in white inside a coloured band ---
-def icon_chip(cv, cx, cy):
-    cv.rect(cx - 13, cy - 13, 26, 26, LIGHT)
-    cv.rect(cx - 6, cy - 6, 12, 12, NAVY)
-    for dx in (-8, 0, 8):
-        cv.line(cx + dx, cy - 20, cx + dx, cy - 13, LIGHT, 2)
-        cv.line(cx + dx, cy + 13, cx + dx, cy + 20, LIGHT, 2)
-    for dy in (-8, 0, 8):
-        cv.line(cx - 20, cy + dy, cx - 13, cy + dy, LIGHT, 2)
-        cv.line(cx + 13, cy + dy, cx + 20, cy + dy, LIGHT, 2)
-
-
-def icon_scales(cv, cx, cy):
-    cv.line(cx, cy - 16, cx, cy + 14, LIGHT, 3)
-    cv.line(cx - 20, cy - 14, cx + 20, cy - 14, LIGHT, 3)
-    cv.line(cx - 20, cy - 14, cx - 24, cy + 2, LIGHT, 2)
-    cv.line(cx - 20, cy - 14, cx - 16, cy + 2, LIGHT, 2)
-    cv.line(cx + 20, cy - 14, cx + 16, cy + 2, LIGHT, 2)
-    cv.line(cx + 20, cy - 14, cx + 24, cy + 2, LIGHT, 2)
-    cv.disc(cx - 20, cy + 6, 5, LIGHT)
-    cv.disc(cx + 20, cy + 6, 5, LIGHT)
-    cv.rect(cx - 12, cy + 12, 24, 3, LIGHT)
+def draw_icon(cv, kind, x, y, colour):
+    """A small pictogram inside a kicker band, drawn from primitives."""
+    if kind == "flags":
+        for i, c in enumerate((RED, GOLD, LIGHT)):
+            cv.vline(x + i * 12, y + 2, 20, colour)
+            cv.fill_rect(x + i * 12 + 1, y + 2, 9, 7, c)
+    elif kind == "chip":
+        cv.fill_rect(x + 6, y + 6, 16, 16, colour)
+        cv.fill_rect(x + 11, y + 11, 6, 6, LIGHT)
+        for i in range(3):
+            cv.hline(x, y + 9 + i * 5, 5, colour)
+            cv.hline(x + 23, y + 9 + i * 5, 5, colour)
+    elif kind == "coin":
+        cv.ring(x + 14, y + 14, 12, colour)
+        cv.text(x + 10, y + 7, "B", 2, colour)
+    elif kind == "cloud":
+        cv.disc(x + 10, y + 18, 7, colour)
+        cv.disc(x + 20, y + 14, 9, colour)
+        cv.fill_rect(x + 8, y + 18, 18, 7, colour)
+        cv.vline(x + 12, y + 26, 5, colour)
+        cv.vline(x + 20, y + 26, 5, colour)
+    elif kind == "sat":
+        cv.line(x + 2, y + 26, x + 26, y + 2, colour)
+        cv.fill_rect(x + 11, y + 11, 7, 7, colour)
+        cv.fill_rect(x + 2, y + 20, 8, 5, colour)
+        cv.fill_rect(x + 19, y + 4, 8, 5, colour)
+    elif kind == "scales":
+        cv.vline(x + 14, y + 4, 22, colour)
+        cv.hline(x + 4, y + 6, 20, colour)
+        cv.line(x + 4, y + 6, x + 1, y + 20, colour)
+        cv.line(x + 4, y + 6, x + 7, y + 20, colour)
+        cv.line(x + 24, y + 6, x + 21, y + 20, colour)
+        cv.line(x + 24, y + 6, x + 27, y + 20, colour)
+        cv.hline(x + 1, y + 20, 6, colour)
+        cv.hline(x + 21, y + 20, 6, colour)
 
 
-def icon_coin(cv, cx, cy, band):
-    cv.disc(cx, cy, 15, LIGHT)
-    cv.disc(cx, cy, 11, band)
-    cv.text(cx - 6, cy - 7, "B", 2, LIGHT)
+def draw_cell(cv, st, x, y, w, icon):
+    """One story cell: coloured kicker band, headline, deck."""
+    cv.fill_rect(x, y, w, 34, st["band"])
+    cv.hline(x, y + 34, w, RED)
+    cv.text(x + 10, y + 10, st["kicker"], 2, LIGHT)
+    draw_icon(cv, icon, x + w - 40, y + 3, LIGHT)
+    cv.fill_rect(x, y + 36, w, 196, LIGHT)
+    hl = cv.wrap(st["headline"], 4, 292)
+    for i, ln in enumerate(hl):
+        cv.text(x + 10, y + 46 + i * 34, ln, 4, INK)
+    dk = cv.wrap(st["deck"], 3, 292)
+    dy = y + 46 + len(hl) * 34 + 4
+    for i, ln in enumerate(dk):
+        cv.text(x + 10, dy + i * 25, ln, 3, INK)
 
 
-def icon_flags(cv, cx, cy):
-    # three small flags on poles: the Shenzhen three-way summit
-    for i, fc in enumerate(((179, 38, 30), (240, 196, 90), (29, 78, 137))):
-        fx = cx - 20 + i * 16
-        cv.line(fx, cy - 16, fx, cy + 14, LIGHT, 2)
-        cv.rect(fx, cy - 16, 12, 9, fc)
-
-
-def icon_storm(cv, cx, cy):
-    # a cloud with rain: Cyclone Akvan
-    cv.disc(cx - 10, cy - 4, 10, LIGHT)
-    cv.disc(cx + 4, cy - 8, 12, LIGHT)
-    cv.disc(cx + 12, cy + 2, 8, LIGHT)
-    cv.rect(cx - 20, cy - 2, 40, 8, LIGHT)
-    for dx in (-14, -4, 6, 16):
-        cv.line(cx + dx, cy + 10, cx + dx - 3, cy + 20, LIGHT, 2)
-
-
-def icon_satellite(cv, cx, cy):
-    # Voyager 1: body, two panels, dish
-    cv.rect(cx - 18, cy - 4, 12, 8, LIGHT)
-    cv.rect(cx + 6, cy - 4, 12, 8, LIGHT)
-    cv.rect(cx - 5, cy - 6, 10, 12, LIGHT)
-    cv.line(cx, cy - 6, cx + 8, cy - 16, LIGHT, 2)
-    cv.disc(cx + 9, cy - 17, 3, LIGHT)
-    cv.line(cx - 5, cy + 8, cx - 12, cy + 16, LIGHT, 2)
-
-
-ICONS = {"chip": icon_chip, "scales": icon_scales,
-         "flags": icon_flags, "storm": icon_storm,
-         "satellite": icon_satellite}
-
-
-def draw_lead_scene(cv, x, y, w, h):
-    # A 2027 calendar page: the Iran decision is pushed to next year.
-    cv.rect(x, y, w, h, SKY)
-    # calendar sheet
-    cv.rect(x + 30, y + 16, 280, 168, LIGHT)
-    cv.rect(x + 30, y + 16, 280, 40, RED)
-    cv.text(x + 124, y + 22, "2027", 4, LIGHT)
-    cv.text(x + 129, y + 66, "JANUARY", 2, INK)
-    gx, gy, cw, ch = x + 44, y + 92, 32, 18
-    for r in range(4):
+def draw_calendar(cv, x, y, w, h):
+    """Lead illustration: a 2027 January calendar, Jan 1 picked out."""
+    cv.fill_rect(x, y, w, h, SKY)
+    cv.fill_rect(x + 14, y + 12, w - 28, 46, RED)
+    cv.centre(x + w // 2, y + 20, "2027", 5, LIGHT)
+    cv.fill_rect(x + 14, y + 58, w - 28, 96, LIGHT)
+    cv.centre(x + w // 2, y + 66, "JANUARY", 3, INK)
+    gx, gy = x + 30, y + 92
+    cw, chh = 40, 18
+    for r in range(3):
         for c in range(7):
-            cx0, cy0 = gx + c * cw, gy + r * ch
+            cx = gx + c * (cw + 2)
+            cy = gy + r * (chh + 2)
             if r == 0 and c == 0:
-                cv.rect(cx0, cy0, cw - 2, ch - 2, RED)
-                cv.text(cx0 + 11, cy0 + 2, "1", 2, LIGHT)
+                cv.fill_rect(cx, cy, cw, chh, RED)
+                cv.text(cx + 4, cy + 2, "1", 2, LIGHT)
             else:
-                cv.rect(cx0, cy0, cw - 2, ch - 2, (232, 220, 190))
-    # red banner under the calendar
-    cv.rect(x + 30, y + 196, 280, 48, RED)
-    cv.text(x + 72, y + 210, "AFTER JAN 1", 3, LIGHT)
-    cv.text(x + 57, y + 252, "NO RUSH, SAYS TRUMP", 2, INK)
+                cv.fill_rect(cx, cy, cw, chh, CREAM)
+    cv.fill_rect(x + 14, y + 168, w - 28, 44, RED)
+    cv.centre(x + w // 2, y + 178, "AFTER JAN 1", 4, LIGHT)
+    cv.centre(x + w // 2, y + 224, "NO RUSH, SAYS TRUMP", 2, INK)
 
 
-def draw_cell(cv, x, y, w, h, story):
-    cv.rect(x, y, w, h, LIGHT)
-    cv.rect(x, y, w, 34, story["band"])
-    cv.text(x + 12, y + 10, story["kicker"], 2, LIGHT)
-    fn = ICONS.get(story["icon"])
-    if fn:
-        fn(cv, x + w - 32, y + 17)
-    elif story["icon"] == "coin":
-        icon_coin(cv, x + w - 32, y + 17, story["band"])
-    cv.rect(x, y, w, 3, RED)
-    yy = y + 46
-    for ln in cv.wrap(story["headline"], 4, w - 24):
-        cv.text(x + 12, yy, ln, 4, INK)
-        yy += 34
-    yy += 4
-    for ln in cv.wrap(story["deck"], 3, w - 24):
-        cv.text(x + 12, yy, ln, 3, (60, 60, 58))
-        yy += 25
-
-
-STORIES = [
-    {"kicker": "SHENZHEN", "band": NAVY, "icon": "flags",
-     "headline": "SUMMIT ISSUES JOINT STATEMENT",
-     "deck": "Four-point pact on nuclear arms."},
-    {"kicker": "MARKETS", "band": TEAL, "icon": "chip",
-     "headline": "ANTHROPIC SHARES SOAR ON DEBUT",
-     "deck": "$83 to $111.50. Worth $1.5tn."},
-    {"kicker": "CRYPTO", "band": AMBER, "icon": "coin",
-     "headline": "BITCOIN NEARS $60,000",
-     "deck": "BTC $61,635. Fear index 10."},
-    {"kicker": "WEATHER", "band": BLUE, "icon": "storm",
-     "headline": "CYCLONE AKVAN HITS INDIA",
-     "deck": "80,000 evacuated. Noon landfall."},
-    {"kicker": "SPACE", "band": NAVY, "icon": "satellite",
-     "headline": "VOYAGER 1 NEARS ONE LIGHT-DAY",
-     "deck": "Farthest human object ever."},
-    {"kicker": "JUSTICE", "band": RED, "icon": "scales",
-     "headline": "MYANMAR GENOCIDE RULING",
-     "deck": "Court finds intent to destroy."},
-]
-
-
-def build():
-    cv = Canvas()
-    # masthead
-    cv.rect(0, 0, W, 10, RED)
-    cv.rect(0, 10, W, 94, NAVY)
-    cv.text(28, 26, "THE WORLD IN ONE DAY", 6, LIGHT)
-    cv.text(28, 72, "FRIDAY, 20 NOVEMBER 2026", 3, (240, 196, 90))
-    cv.disc(948, 57, 27, (240, 196, 90))
-    cv.text(948 - cv.text_width("20", 4) // 2, 43, "20", 4, NAVY)
-    # subline
-    cv.text(28, 114, "Trump delays Iran to 2027, a record AI debut, a cyclone, Bitcoin near $60,000.", 2, GREY)
-    # lead story
-    cv.text(28, 148, "IRAN DECISION - LEAD STORY", 2, RED)
-    yy = 176
-    for ln in ("TRUMP PUTS IRAN", "DECISION OFF", "TO 2027"):
-        cv.text(28, yy, ln, 5, INK)
-        yy += 45
-    cv.para(28, 312,
-            "Trump says there is no rush: he will see what happens after Jan 1. The decision moves to 2027.",
-            3, 612, INK)
-    draw_lead_scene(cv, 660, 150, 340, 270)
-    # divider
-    cv.rect(24, 448, 976, 2, GREY)
-    # grid: 2 rows x 3 columns
-    xs = (24, 354, 684)
-    ys = (462, 702)
+def draw_page(cv):
+    # Masthead.
+    cv.fill_rect(0, 0, W, 10, RED)
+    cv.fill_rect(0, 10, W, 108, NAVY)
+    cv.text(24, 28, "THE WORLD IN ONE DAY", 7, LIGHT)
+    cv.disc(950, 64, 36, GOLD)
+    cv.text(928, 50, "20", 4, NAVY)
+    cv.text(24, 88, "FRIDAY, 20 NOVEMBER 2026", 3, GOLD)
+    # One-line standfirst.
+    cv.text(24, 132, SUBLINE, 2, GREY)
+    # Lead story, left; calendar illustration, right.
+    cv.text(28, 164, LEAD_KICKER, 2, RED)
+    for i, ln in enumerate(LEAD_HEAD):
+        cv.text(28, 190 + i * 54, ln, 6, INK)
+    cv.para(28, 356, LEAD_TEXT, 3, 612, INK)
+    draw_calendar(cv, 648, 164, 352, 276)
+    # Divider, then the six-cell grid.
+    cv.hline(24, 452, 976, INK)
+    icons = ["flags", "chip", "coin", "cloud", "sat", "scales"]
+    xs = [24, 352, 680]
     for i, st in enumerate(STORIES):
-        draw_cell(cv, xs[i % 3], ys[i // 3], 316, 230, st)
-    # footer
-    cv.rect(24, 946, 976, 2, RED)
-    cv.text(24, 958, "ALSO TODAY", 2, RED)
-    cv.para(24, 978,
-            "Fed signals more rate hikes | Seoul court clears ex-PM Han | Fiji declares drought disaster | Nicholls 113* as NZ hit 243/5",
-            2, 976, INK)
-    return cv
+        draw_cell(cv, st, xs[i % 3], 470 + (i // 3) * 244, 312, icons[i])
+    # Footer strip.
+    cv.hline(24, 958, 976, RED)
+    cv.text(24, 966, "ALSO TODAY", 2, RED)
+    cv.para(24, 986, FOOTER, 2, 976, INK)
 
 
 def main():
-    outdir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
-    os.makedirs(outdir, exist_ok=True)
-    data = png_bytes(build())
-    with open(os.path.join(outdir, "entry.png"), "wb") as f:
-        f.write(data)
+    out = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+    os.makedirs(out, exist_ok=True)
+    cv = Canvas()
+    draw_page(cv)
+    with open(os.path.join(out, "entry.png"), "wb") as f:
+        f.write(cv.png_bytes())
 
 
 if __name__ == "__main__":
